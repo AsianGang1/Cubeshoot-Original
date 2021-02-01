@@ -1,0 +1,287 @@
+<html>
+    <head>
+        <script>
+            var keys=["ArrowUp","ArrowDown","ArrowRight","ArrowLeft"," ","w","a","s","d","Enter","W","A","S","D"];
+            var dir="up";
+            var prc=3;
+            var canvas;
+            var ctx;
+            var cx;
+            var cy;
+            var l=false;
+            var game;
+            var cool;
+            var hs=0;
+            var lhs=localStorage.getItem('hs1');
+            if(lhs!==null&&lhs>hs){
+                hs=lhs;
+            }
+            var player={
+                x:425,
+                y:250,
+                moveg: function(){
+                    if(keys["ArrowUp"]==true){
+                    this.y=this.y-3;
+                }
+                if(keys["ArrowDown"]==true){
+                    this.y=this.y+3;
+                }
+                if(keys["ArrowRight"]==true){
+                    this.x=this.x+3;
+                }
+                if(keys["ArrowLeft"]==true){
+                    this.x=this.x-3;
+                }
+                if(keys["w"]==true||keys["W"]==true){
+                    dir="up";
+                    img.src="up.png";
+                }
+                if(keys["a"]==true||keys["A"]==true){
+                    dir="left";
+                    img.src="left.png";
+                }
+                if(keys["s"]==true||keys["S"]==true){
+                    dir="down";
+                    img.src="down.png";
+                }
+                if(keys["d"]==true||keys["D"]==true){
+                    dir="right";
+                    img.src="right.png";
+                }
+                if(this.y<0){
+                    this.y=0;
+                }
+                if(this.y>575){
+                    this.y=575;
+                }
+                if(this.x<0){
+                    this.x=0;
+                }
+                if(this.x>875){
+                   this.x=875;
+                }
+                },
+                draw: function(){
+                    ctx.drawImage(img,this.x,this.y);
+                }
+            };
+            function begin(){
+                if(l===false){
+                    alert("How to play: \n1. Arrow keys to move. \n2. w a s d keys to change gun direction \n3. Space to shoot \n4. Reload time is 2 seconds by default. It will gradually increase with every kill. \n5. Avoid red squares \n6. Press r to restart\nNOTE: \nEvery five kills will add 1 more monster");
+                    l=true;
+                }
+                coold=100;
+                player.x=425;
+                player.y=250;
+                player.y=250;
+                bad=new badg(Math.random()*875,Math.random()*100);
+                canvas=document.getElementById("b");
+                ctx=canvas.getContext("2d");
+                badc=[bad];
+                score=0;
+                cool=0;
+                badn=1;
+                bad.size=25;
+                bad.x=Math.random()*875;
+                bad.y=Math.random()*100;
+                ctx.fillStyle="white";
+                game=setInterval(function(){frame();},10);
+                clearInterval(end);
+            };
+            window.onkeydown=function(event){
+               keys[event.key]=true;
+            };
+            window.onkeyup=function(event){
+               keys[event.key]=false;
+            };
+            var img= new Image();
+            img.src="up.png";
+            var score;
+            var end=setInterval(function(){flash();},700);
+            function badg(x,y)
+            {
+                this.x=x;
+                this.y=y;
+                this.size=25;
+            };
+            badg.prototype.moveb=function()
+            {
+                if(player.x<this.x){
+                    this.x--;
+                }
+                else if(player.x>this.x){
+                    this.x++;
+                }
+                if(player.y<this.y){
+                    this.y--;
+                }
+                else if(player.y>this.y){
+                    this.y++;
+                }   
+            }
+            badg.prototype.draw=function()
+            {
+                ctx.fillStyle="red";
+                ctx.fillRect(this.x,this.y,this.size,this.size);
+            }
+            var bad;
+            var badc=[];
+            var badn;
+            var coold;
+            function frame(){
+                player.moveg();
+                for(var i=0;i<badn;++i){
+                    badc[i].moveb();
+                }
+                shoot();
+                for(var i=0;i<badn;++i){
+                if (player.x < badc[i].x + 25 && player.x + 25 > badc[i].x && player.y < badc[i].y + 25 && 25 + player.y > badc[i].y){
+                    ctx.clearRect(0,0,canvas.width,canvas.height);
+                    badc[i].size=30;
+                    badc[i].size=25;
+                    for(var i=0;i<badn;++i){
+                    badc[i].draw();
+                    }
+                    ctx.fillStyle="white";
+                    ctx.font=" 20px monospace";
+                    ctx.fillText("Score: "+score,10,20);
+                    ctx.fillText("Highscore: "+hs,10,40);
+                    if(hs>lhs){
+                        localStorage.setItem("hs1",hs);
+                    }
+                    clearInterval(game);
+                    end=setInterval(function(){flash();},700);
+                }
+                }
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                for(var i=0;i<badn;++i){
+                    badc[i].draw();
+                }
+                ctx.fillStyle="white";
+                player.draw();
+                ctx.font=" 20px monospace";
+                ctx.fillText("Score: "+score,10,20);
+                ctx.fillText("Highscore: "+hs,10,40);
+                if(prc>0){
+                    ctx.fillStyle="orange";
+                    ctx.fillRect(cx,cy,10,10);
+                    }
+                    else{
+                        cx=player.x;
+                        cy=player.y;
+                    }
+                for(var i=0;i<badn;++i){
+                if(cx < badc[i].x + 25 && cx + 10 > badc[i].x && cy < badc[i].y + 25 && 10 + cy > badc[i].y){
+                    prc--;
+                    badc[i].x=Math.random()*875;
+                    badc[i].y=Math.random()*100;
+                    score++;
+                    if(score>hs){
+                        hs++;
+                    }
+                    coold++;
+                    if(score%5===0&&(score-1)%5!==0){
+                        badc.push(new badg(Math.random()*875,Math.random()*100));
+                        badn++;
+                    }
+                    ctx.clearRect(0,0,canvas.width,canvas.height);
+                    badc[i].draw();
+                    ctx.fillStyle="white";
+                    player.draw();
+                    ctx.font="20px monospace";
+                    ctx.fillText("Score: "+score,10,20);
+                    ctx.fillText("Highscore: "+hs,10,40);
+                    if(prc>0){
+                    ctx.fillStyle="orange";
+                    ctx.fillRect(cx,cy,10,10);
+                    }
+                    else{
+                        cx=player.x;
+                        cy=player.y;
+                    }
+                }
+                }
+                if(cool>0){
+                    cool--;   
+                }
+            }
+            var g=0;
+            function flash(){
+                if(g===0){
+                    ctx.fillStyle="red";
+                    ctx.font="30px monospace";
+                    ctx.fillText("GAME OVER!", 375, 50);
+                    g=1;
+                }
+                else{
+                    ctx.fillStyle="black";
+                    ctx.fillText("GAME OVER!", 375, 50);
+                    ctx.fillText("GAME OVER!", 375, 50);
+                    ctx.fillText("GAME OVER!", 375, 50);
+                    ctx.fillText("GAME OVER!", 375, 50);
+                    g=0;
+                }
+            }
+            var shot=new Audio();
+            shot.src="shot.mp3";
+            var pdir;
+            function shoot(){
+                if(keys[" "]==true){
+                    if(cool===0){
+                        prc=3;
+                        shot.play();
+                        cx=player.x + 7.5;
+                        cy=player.y + 7.5;
+                        cool=coold;
+                        pdir=dir;
+                         if(dir=="up"){
+                           player.y+=20;
+                        }
+                        if(dir=="down"){
+                           player.y-=20;
+                        }
+                        if(dir=="left"){
+                           player.x+=20;
+                        }
+                        if(dir=="right"){
+                           player.x-=20;
+                        }
+                    }
+                }
+                if(pdir==="up"){
+                    cy-=10;
+                }
+                else if(pdir==="left"){
+                    cx-=10;
+                }
+                else if(pdir==="down"){
+                    cy+=10;
+                }
+                else if(pdir==="right"){
+                    cx+=10;
+                }
+            }
+            function ifr(){
+                if(keys["Enter"]==true){
+                    clearInterval(game);
+                    clearInterval(end);
+                    begin();
+                }
+            }
+            setInterval(ifr,100);
+        </script>
+        <style>
+            html{
+                overflow: hidden;
+                text-align: center;
+            }
+            #b{
+                background-color: black;
+            }
+        </style>
+    </head>
+    <body onload="begin()">
+        <title>Cube Shoot</title>
+        <canvas id="b" width="900" height="600"></canvas>
+    </body>
+</html>
